@@ -1,0 +1,9 @@
+﻿@import "tailwindcss";
+
+@theme {
+    --font-sans: Trirong;
+    --font-mono: Trirong;
+    --font-body: Trirong, sans-serif;
+}
+
+/* npx @tailwindcss/cli -i ./TaxiNT.MAUI/TailwindImport/input.css -o ./TaxiNT.MAUI/wwwroot/css/tailwindcss.css --watch */

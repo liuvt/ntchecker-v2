@@ -1,0 +1,52 @@
+﻿@page "/"
+@inject NavigationManager Navigation
+
+<div class="text-lg">Chào, @userName!</div>
+
+<p class="text-sm">@message</p>
+
+
+@code {
+    // You can add code here if needed
+    public string userName { get; set; } = string.Empty;
+    public string message { get; set; } = string.Empty;
+    [Inject]
+    public ICheckerDetailService checkerDetailService { get; set; } = default!;
+    public CheckerDetailDto checkerDetailDto { get; set; } = new CheckerDetailDto();
+
+    private List<CheckerDto> revenueDetails { get; set; } = new List<CheckerDto>();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                //Load xem có lưu tên nguời dùng không
+                userName = Preferences.Get("userId", defaultValue: "");
+
+                if (!Preferences.ContainsKey("userId")) Navigation.NavigateTo("/login", true);
+                if (string.IsNullOrWhiteSpace(userName)) Navigation.NavigateTo("/login", true);
+                else
+                {
+                    //Gọi API nếu chưa có data
+                    checkerDetailDto = await checkerDetailService.GetCheckerDetail(userName);
+                    if (checkerDetailDto != null)
+                    {
+                        message = "ĐÃ CÓ THỂ VÀO XEM PHIẾU CHECKER!";
+                    }
+                    else
+                    {
+                        message = "DOANH THU ĐANG ĐƯỢC CẬP NHẬT...";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                message = $"Không tìm thấy phiếu '{userName}'. Liên hệ lại checker kiểm tra!";
+            }
+
+            StateHasChanged(); // Bắt buộc để cập nhật UI
+        }
+
+    }
+}

@@ -1,0 +1,100 @@
+﻿@page "/checker"
+
+<div class="flex justify-center text-2xl text-blue-500">TÌM PHIẾU CHECKER</div>
+
+<!-- Input Section -->
+<div class="mt-3 md:container md:mx-auto">
+	@if (!string.IsNullOrWhiteSpace(datas))
+	{
+		<div class="mt-3 font-semibold text-red-500">@datas</div>
+	}
+	<div class="mt-3 flex flex-col gap-1 rounded-xl bg-gray-950/5 p-1 inset-ring inset-ring-gray-950/5 dark:bg-white/10 dark:inset-ring-white/10">
+		<div class="not-prose overflow-auto rounded-lg bg-white outline outline-white/5 dark:bg-gray-950/50">
+			<div class="my-4 overflow-hidden">
+				<div class="gap-4 p-2">
+					<p class="border-gray-200 text-lg font-semibold text-green-500 dark:border-gray-700 dark:text-gray-400">
+						Tổng ca: @revenueDetails.Count()
+					</p>
+					<p class="border-gray-200 text-lg font-semibold text-green-500 dark:border-gray-700 dark:text-gray-400">
+						Doanh thu: @revenueDetails.Sum(x => x.revenueByDate).ltvVNDCurrency()
+					</p>
+				</div>
+				<table class="w-full table-auto border-collapse text-sm">
+					<thead>
+						<tr>
+							<th class="border-b border-gray-200 p-2 pt-0 pb-3 pl-4 text-left font-medium text-gray-400 sm:p-4 sm:pl-8 dark:border-gray-600 dark:text-gray-200">Họ tên</th>
+							<th class="hidden border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400 sm:table-cell dark:border-gray-600 dark:text-gray-200">D.thu tổng n-1</th>
+							<th class="border-b border-gray-200 p-2 pt-0 pb-3 pl-4 text-left font-medium text-gray-400 sm:p-4 sm:pl-8 sm:text-center dark:border-gray-600 dark:text-gray-200">D.Thu ngày</th>
+							<th class="hidden border-b border-gray-200 p-4 pt-0 pb-3 pl-8 text-left font-medium text-gray-400 sm:table-cell dark:border-gray-600 dark:text-gray-200">Tiền nợp về</th>
+							<th class="border-b border-gray-200 p-2 pt-0 pb-3 pl-4 text-left font-medium text-gray-400 sm:p-4 sm:pl-8 sm:text-center dark:border-gray-600 dark:text-gray-200">Ngày</th>
+						</tr>
+					</thead>
+					<tbody class="bg-white dark:bg-gray-800">
+						@foreach (var item in revenueDetails)
+						{
+							<tr>
+								<td class="border-b border-gray-100 p-2 pl-4 text-blue-400 hover:text-blue-600 sm:p-4 sm:pl-8 dark:border-gray-700 dark:text-gray-400">@item.userId</td>
+								<td class="hidden border-b border-gray-100 p-4 pl-8 text-gray-500 sm:table-cell dark:border-gray-700 dark:text-gray-400">@item.revenueByMonth.ltvVNDCurrency()</td>
+								<td class="border-b border-gray-100 p-4 pl-8 text-gray-500 sm:text-center dark:border-gray-700 dark:text-gray-400">@item.revenueByDate.ltvVNDCurrency()</td>
+								<td class="hidden border-b border-gray-100 p-4 pl-8 text-gray-500 sm:table-cell dark:border-gray-700 dark:text-gray-400">@item.totalPrice.ltvVNDCurrency()</td>
+								<td class="border-b border-gray-100 p-4 pl-8 text-gray-500 sm:text-center dark:border-gray-700 dark:text-gray-400">@item.createdAt</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+@inject NavigationManager Navigation
+
+@code {
+
+	public string datas { get; set; } = string.Empty;
+	public bool isLoading = false;
+	[Inject]
+	public ICheckerService checkerService { get; set; }
+	[Inject]
+	public NavigationManager nav { get; set; }
+
+	private List<CheckerDto> revenueDetails { get; set; } = new List<CheckerDto>();
+
+	// You can add code here if needed
+	public string userName { get; set; } = string.Empty;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			//Load xem có lưu tên nguời dùng không
+			userName = Preferences.Get("userId", defaultValue: "");
+
+			if (!Preferences.ContainsKey("userId")) Navigation.NavigateTo("/login", true);
+			if (string.IsNullOrWhiteSpace(userName)) Navigation.NavigateTo("/login", true);
+			else
+			{
+				await LoadData(userName);
+			}
+			StateHasChanged(); // Bắt buộc để cập nhật UI
+		}
+	}
+
+	public async Task LoadData(string _userName)
+	{
+		isLoading = !isLoading;
+		datas = "Đang kiểm tra...";
+		if (string.IsNullOrWhiteSpace(_userName))
+		{
+			datas = "Vui lòng nhập thông tin!";
+		}
+		else
+		{
+			revenueDetails = await checkerService.GetsRevenueDetail(_userName);
+			datas = (revenueDetails.Count() <= 0) ?
+				$"Không tìm thấy doanh thu tài xế: {_userName}!" :
+				string.Empty;
+		}
+		StateHasChanged();
+	}
+}

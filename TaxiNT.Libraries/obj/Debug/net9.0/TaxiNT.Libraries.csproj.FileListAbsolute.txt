@@ -1,0 +1,11 @@
+D:\Dev\NT\TaxiNT.Libraries\bin\Debug\net9.0\TaxiNT.Libraries.deps.json
+D:\Dev\NT\TaxiNT.Libraries\bin\Debug\net9.0\TaxiNT.Libraries.dll
+D:\Dev\NT\TaxiNT.Libraries\bin\Debug\net9.0\TaxiNT.Libraries.pdb
+D:\Dev\NT\TaxiNT.Libraries\obj\Debug\net9.0\TaxiNT.Libraries.GeneratedMSBuildEditorConfig.editorconfig
+D:\Dev\NT\TaxiNT.Libraries\obj\Debug\net9.0\TaxiNT.Libraries.AssemblyInfoInputs.cache
+D:\Dev\NT\TaxiNT.Libraries\obj\Debug\net9.0\TaxiNT.Libraries.AssemblyInfo.cs
+D:\Dev\NT\TaxiNT.Libraries\obj\Debug\net9.0\TaxiNT.Libraries.csproj.CoreCompileInputs.cache
+D:\Dev\NT\TaxiNT.Libraries\obj\Debug\net9.0\TaxiNT.Libraries.dll
+D:\Dev\NT\TaxiNT.Libraries\obj\Debug\net9.0\refint\TaxiNT.Libraries.dll
+D:\Dev\NT\TaxiNT.Libraries\obj\Debug\net9.0\TaxiNT.Libraries.pdb
+D:\Dev\NT\TaxiNT.Libraries\obj\Debug\net9.0\ref\TaxiNT.Libraries.dll

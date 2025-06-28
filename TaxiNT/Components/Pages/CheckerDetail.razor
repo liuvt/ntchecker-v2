@@ -1,0 +1,9 @@
+﻿@page "/checker/{userId}"
+@layout MainLayoutEmpty
+
+<CheckerDetailComponent userId="@userId" @rendermode="new InteractiveWebAssemblyRenderMode(prerender:true)" />
+
+@code {
+    [Parameter]
+    public string userId { get; set; } = string.Empty;
+}

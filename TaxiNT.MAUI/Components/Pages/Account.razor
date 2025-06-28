@@ -1,0 +1,35 @@
+﻿@page "/account"
+@inject NavigationManager Navigation
+
+<div class="text-lg">Xin chào, @userName</div>
+
+<button class="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-700" @onclick="Logout">
+    Đăng xuất
+</button>
+
+@code {
+    // You can add code here if needed
+    public string userName { get; set; } = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //Load xem có lưu tên nguời dùng không
+            userName = Preferences.Get("userId", defaultValue: "");
+
+            if (!Preferences.ContainsKey("userId")) Navigation.NavigateTo("/login", true);
+            if (string.IsNullOrWhiteSpace(userName)) Navigation.NavigateTo("/login", true);
+
+            StateHasChanged(); // Bắt buộc để cập nhật UI
+        }
+
+    }
+
+    public void Logout()
+    {
+        // Xoá thông tin đăng nhập
+        Preferences.Remove("userId");
+        Navigation.NavigateTo("/login", true);
+    }
+}
