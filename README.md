@@ -1,2 +1,6 @@
-# ntchecker-v2
-Nam Thang Group - helper for driver register contract
+# Bill Checker v2
+- Blazor Static
+- Blazor Server
+- Blazor Webassembly component
+- Mobile: MAUI Blazor Hybrid App
+- Tailwind layout
