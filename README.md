@@ -1,8 +1,9 @@
 # Bill Checker v2
-- Blazor Static
-- Blazor Server
-- Blazor Webassembly component
-- Mobile: MAUI Blazor Hybrid App
+- Environment: .NET 9.0
+- Blazor Server/Static: Main, Controller,...
+- Blazor Webassembly: Component
+- MAUI Blazor Hybrid App: Main mobile
+- Libraries: Models, Entities, Extensions,...
 
 # Blazor 
 - Create mirations: ```dotnet ef migrations add Init -o Data/Migrations```
