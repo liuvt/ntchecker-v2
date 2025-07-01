@@ -1,4 +1,5 @@
-﻿@page "/checker/{userId}"
+﻿@page "/{userId}"
+@page "/checker/{userId}"
 @layout MainLayoutEmpty
 
 <CheckerDetailComponent userId="@userId" @rendermode="new InteractiveWebAssemblyRenderMode(prerender:true)" />

@@ -32,7 +32,7 @@ public class CheckerDetailController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error in GetAll");
+            logger.LogError(ex, "Error in GetCheckerDetail");
             return StatusCode(500, "Internal server error");
         }
     }

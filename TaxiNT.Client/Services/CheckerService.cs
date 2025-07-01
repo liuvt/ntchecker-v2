@@ -70,4 +70,35 @@ public class CheckerService : ICheckerService
             throw new ApplicationException("Lỗi khi gọi API", ex);
         }
     }
+
+    public async Task<CheckerDetailDto> GetCheckerDetailHistory(string userId, string date)
+    {
+        try
+        {
+            var response = await httpClient.GetAsync($"api/Checker/{userId}/History/{date}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.NoContent)
+                    return new CheckerDetailDto();
+
+                var result = await response.Content.ReadFromJsonAsync<CheckerDetailDto>();
+
+                if (result == null)
+                    return new CheckerDetailDto();
+
+                return result;
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+
+            throw new HttpRequestException($"API Error: {response.StatusCode} - {error}");
+        }
+        catch (Exception ex)
+        {
+            // Có thể log ex ở đây
+            throw new HttpRequestException($"Lỗi không load được data tư server --{ex}");
+            throw new ApplicationException("Lỗi khi gọi API", ex);
+        }
+    }
 }

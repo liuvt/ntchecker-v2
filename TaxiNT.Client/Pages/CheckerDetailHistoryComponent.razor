@@ -1,6 +1,6 @@
 ﻿@inject PersistentComponentState AppState
 @implements IDisposable
-@inject ILogger<CheckerDetailComponent> Logger
+@inject ILogger<CheckerDetailHistoryComponent> Logger
 @inject IJSRuntime Js
 
 <!-- Tailwind CSS -->
@@ -246,7 +246,7 @@
 							</div>
 						</div>
 						<div class="border-green-700 sm:border-l">
-							<img class="h-72 w-72 object-contain" src="@revenue.qrUrl" alt="QR Code" />
+							<img class="h-72 w-72 object-contain" src="imgs/logo-namthang.png" alt="QR Code" />
 						</div>
 					</div>
 				</div>
@@ -263,17 +263,19 @@
 
 	[Parameter]
 	public string userId { get; set; } = string.Empty;
+	[Parameter]
+	public string date { get; set; } = string.Empty;
 	[Inject]
-	public ICheckerDetailService checkerDetailService { get; set; } = default!;
-	public CheckerDetailDto checkerDetailDto { get; set; } = new CheckerDetailDto();
-	public RevenueDto revenue { get; set; } = new RevenueDto();
-	public List<TimepieceDto> timepieces { get; set; } = new List<TimepieceDto>();
-	public List<ContractDto> contracts { get; set; } = new List<ContractDto>();
+	protected ICheckerService checkerService { get; set; } = default!;
+	protected CheckerDetailDto checkerDetailDto { get; set; } = new CheckerDetailDto();
+	protected RevenueDto revenue { get; set; } = new RevenueDto();
+	protected List<TimepieceDto> timepieces { get; set; } = new List<TimepieceDto>();
+	protected List<ContractDto> contracts { get; set; } = new List<ContractDto>();
 	protected string totalAmount { get; set; } = string.Empty; // Tổng hợp đồng và cuốc lẻ
 
-	public bool isLoaded { get; set; } = false; //Load trang
-	public string isType { get; set; } = string.Empty; // Loại xe khoán hay không khoán
-	public string StateMessage { get; set; } = string.Empty; // Thông báo trạng thái lỗi hoặc thông tin
+	protected bool isLoaded { get; set; } = false;
+	protected string isType { get; set; } = string.Empty;
+	protected string StateMessage { get; set; } = string.Empty;
 
 	private PersistingComponentStateSubscription subscription;
 
@@ -281,23 +283,27 @@
 	{
 		try
 		{
+			Logger.LogInformation("date" + date); // LOG 2
+
 			// Lưu dữ liệu và appState
 			subscription = AppState.RegisterOnPersisting(PersistState);
 
 			//Kiểm tra xem đã có dữ liệu trong AppState nếu có sử dụng luôn không cần fetch từ server
-			if (!AppState.TryTakeFromJson<CheckerDetailDto>(nameof(CheckerDetailDto), out var _checkerDetailDto))
+			if (!AppState.TryTakeFromJson<CheckerDetailDto>("checkerHistory", out var _checkerDetailDto))
 			{
+				Logger.LogInformation("Không tìm thấy AppState, gọi API"); // LOG 2
 				//Gọi API nếu chưa có data
-				checkerDetailDto = await checkerDetailService.GetCheckerDetail(userId);
+				checkerDetailDto = await checkerService.GetCheckerDetailHistory(userId, date);
+				//Hiển thị
 			}
 			else
 			{
 				Logger.LogInformation("Tìm thấy dữ liệu AppState"); // LOG 3
+				//Nếu dữ liệu đã có trong AppState thì sử dụng dữ liệu đó
 				checkerDetailDto = _checkerDetailDto!;
 			}
-
-			await HadleDisplayData(checkerDetailDto);
 			
+			await HandleDisplayData(checkerDetailDto);
 		}
 		catch (Exception ex)
 		{
@@ -307,7 +313,7 @@
 	}
 
 	// Xử lý dữ liệu để hiển thị
-	private async Task HadleDisplayData(CheckerDetailDto _data)
+	private async Task HandleDisplayData(CheckerDetailDto _data)
 	{
 		revenue = _data.revenue;
 		isType = revenue.typeCar;
@@ -325,7 +331,7 @@
 	private Task PersistState()
 	{
 		//Tham số là {Token} và dữ liệu
-		AppState.PersistAsJson(nameof(CheckerDetailDto), checkerDetailDto);
+		AppState.PersistAsJson("checkerHistory", checkerDetailDto);
 		return Task.CompletedTask;
 	}
 

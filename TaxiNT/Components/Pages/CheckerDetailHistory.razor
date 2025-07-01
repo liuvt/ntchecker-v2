@@ -1,0 +1,12 @@
+﻿@page "/{userId}/{date}"
+@page "/checker/{userId}/{date}"
+@layout MainLayoutEmpty
+
+<CheckerDetailHistoryComponent userId="@userId" date="@date" @rendermode="new InteractiveWebAssemblyRenderMode(prerender: true)" />
+
+@code {
+    [Parameter]
+    public string userId { get; set; } = string.Empty;
+    [Parameter]
+    public string date { get; set; } = string.Empty;
+}

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaxiNT.Extensions;
+using TaxiNT.Libraries.Entities;
 using TaxiNT.Services.Interfaces;
 
 namespace TaxiNT.Controllers;
@@ -26,7 +28,28 @@ public class CheckerController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error in GetAll");
+            logger.LogError(ex, "Error in GetsRevenueDetail");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpGet("{userId}/History/{date}")]
+    public async Task<IActionResult> GetCheckerDetailHistory(string userId, string date)
+    {
+        try
+        {
+            //Logic phiếu checker
+            var revenue = await context.GetRevenue(userId,date); //Đã có xữ lý Banking
+            var contract = await context.GetContract(userId, date);
+            var timepiece = await context.GetTimepiece(userId, date);
+
+            return Ok(ConvertToDo.ltvConvertCheckerDetailToDo(new CheckerDetailDto(), revenue, timepiece, contract));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error in GetCheckerDetailHistory");
+            logger.LogError("userId:" + userId);
+            logger.LogError("date:" + date);
             return StatusCode(500, "Internal server error");
         }
     }
