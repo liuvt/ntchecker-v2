@@ -288,26 +288,27 @@
 			if (!AppState.TryTakeFromJson<CheckerDetailDto>(nameof(CheckerDetailDto), out var _checkerDetailDto))
 			{
 				//Gọi API nếu chưa có data
+				Logger.LogInformation("Không có dữ liệu AppState, đang gọi API từ server");
 				checkerDetailDto = await checkerDetailService.GetCheckerDetail(userId);
 			}
 			else
 			{
-				Logger.LogInformation("Tìm thấy dữ liệu AppState"); // LOG 3
+				Logger.LogInformation("Tìm thấy dữ liệu AppState, không cần gọi API");
 				checkerDetailDto = _checkerDetailDto!;
 			}
 
-			await HadleDisplayData(checkerDetailDto);
+			await HandleDisplayData(checkerDetailDto);
 			
 		}
 		catch (Exception ex)
 		{
-			StateMessage = $"Không tìm thấy phiếu '{userId}'. Liên hệ lại checker kiểm tra!";
-			Logger.LogInformation($"{ex.Message}: Lỗi khi khởi tạo CheckerDetailComponent");
+			StateMessage = $"KHÔNG TÌM THẤY PHIẾU CỦA {userId}";
+			Logger.LogInformation($"{ex.Message}: Lỗi khi khởi tạo không gọi được API");
 		}
 	}
 
 	// Xử lý dữ liệu để hiển thị
-	private async Task HadleDisplayData(CheckerDetailDto _data)
+	private async Task HandleDisplayData(CheckerDetailDto _data)
 	{
 		revenue = _data.revenue;
 		isType = revenue.typeCar;

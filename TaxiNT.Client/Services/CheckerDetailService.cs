@@ -41,7 +41,6 @@ public class CheckerDetailService : ICheckerDetailService
         {
             // Có thể log ex ở đây
             throw new HttpRequestException($"Lỗi không load được data tư server --{ex}");
-            throw new ApplicationException("Lỗi khi gọi API", ex);
         }
     }
 }

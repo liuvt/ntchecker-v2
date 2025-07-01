@@ -1,11 +1,12 @@
 ﻿@page "/login"
+@layout MainLayoutEmpty
 @inject NavigationManager Navigation
 
-<div class="mt-4 flex items-center justify-center">
+<div class="flex min-h-screen items-center justify-center">
     <div class="w-full max-w-md rounded-2xl bg-green-50 p-1 shadow-xl">
         <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
             <h2 class="mb-6 text-center text-3xl font-bold text-gray-800">Đăng Nhập</h2>
-            <form>
+            <div>
                 <div class="mb-4">
                     <label class="mb-1 block text-gray-600" for="userId">HỌ TÊN - MÃ NHÂN VIÊN</label>
                     <input id="userId"
@@ -19,15 +20,16 @@
                     <label class="mb-1 block text-gray-600" for="password">Mật khẩu</label>
                     <input id="password"
                            type="password"
+                           @bind="passwork"
                            class="w-full rounded-lg border px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                            placeholder="••••••••" />
                 </div>
 
-                <button @onclick="SaveUserId"
+                <button @onclick="() => SaveUserId()"
                         class="w-full rounded-lg bg-blue-500 px-4 py-2 font-semibold text-white transition duration-200 hover:bg-blue-600">
                     Đăng nhập
                 </button>
-            </form>
+            </div>
 
             <p class="mt-6 text-center text-sm text-gray-600">
                 Chưa có tài khoản?
@@ -36,30 +38,30 @@
         </div>
     </div>
 </div>
+<div class="mt-3">
+    <p>@msError</p>
+</div>
 
-@code{
+@code {
     // You can add code here if needed
     public string userName { get; set; } = string.Empty;
+    public string passwork { get; set; } = string.Empty;
+    public string msError { get; set; } = string.Empty;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task SaveUserId()
     {
-        if (firstRender)
+        if (string.IsNullOrWhiteSpace(userName) || !userName.Contains(" - "))
         {
-            //Load xem có lưu tên nguời dùng không
-            userName = Preferences.Get("userId", defaultValue: "");
-
-            if (Preferences.ContainsKey("userId"))
-            {
-                if (!string.IsNullOrWhiteSpace(userName)) Navigation.NavigateTo("/", true);
-            }
-
-            StateHasChanged(); // Bắt buộc để cập nhật UI
+            msError = "Tên tài khoản không hợp lệ. Phải nhập theo định dạng: HỌ TÊN - MÃ NHÂN VIÊN";
+            return;
         }
-    }
 
-    public void SaveUserId()
-    {
-        // Lưu
+        if (passwork != "1")
+        {
+            msError = "Nhập mật khẫu đã anh bạn!";
+            return;
+        }
+
         Preferences.Set("userId", userName);
         Navigation.NavigateTo("/", true);
     }

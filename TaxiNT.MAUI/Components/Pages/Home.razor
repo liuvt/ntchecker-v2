@@ -1,52 +1,77 @@
 ﻿@page "/"
 @inject NavigationManager Navigation
 
-<div class="text-lg">Chào, @userName!</div>
+<div class="text-lg">Xin chào!</div>
 
-<p class="text-sm">@message</p>
-
+@if (!isLoaded)
+{
+    <div class="text-red-500">@message</div>
+}
+else
+{
+    <div class="text-red-500">@message</div>
+    <div class="round-lg mt-4 mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+            <p class="flex items-center text-base text-green-600 md:text-lg">
+                <img width="18" src="../icons/checkerdetail/carId.png" alt="Đang tải..." />
+                <span class="ml-1 font-medium">Số hiệu: @(revenue.numberCar)</span>
+            </p>
+            <p class="flex items-center text-base text-green-600 md:text-lg">
+                <img width="18" src="../icons/checkerdetail/identity-theft.png" alt="Đang tải..." />
+                <span class="ml-1 font-medium">Tên: @revenue.userId.ToUpper()</span>
+            </p>
+            <p class="flex items-center text-base text-green-600 md:text-lg">
+                <img width="18" src="../icons/checkerdetail/revenue-month.png" alt="Đang tải..." />
+                <span class="ml-1 font-medium">Doanh thu tổng: @revenue.revenueByMonth.ltvVNDCurrency()</span>
+            </p>
+        </div>
+    </div>
+}
 
 @code {
     // You can add code here if needed
     public string userName { get; set; } = string.Empty;
-    public string message { get; set; } = string.Empty;
+    public string message { get; set; } = "Đang tải dữ liệu...";
+    public bool isLoaded { get; set; } = false;
     [Inject]
     public ICheckerDetailService checkerDetailService { get; set; } = default!;
     public CheckerDetailDto checkerDetailDto { get; set; } = new CheckerDetailDto();
+    public RevenueDto revenue { get; set; } = new RevenueDto();
 
     private List<CheckerDto> revenueDetails { get; set; } = new List<CheckerDto>();
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
+        try
         {
-            try
+            userName = Preferences.Get("userId", defaultValue: "");
+            var jsonload = Preferences.Get("_loadDatas", defaultValue: "");
+            if (!string.IsNullOrWhiteSpace(jsonload))
             {
-                //Load xem có lưu tên nguời dùng không
-                userName = Preferences.Get("userId", defaultValue: "");
-
-                if (!Preferences.ContainsKey("userId")) Navigation.NavigateTo("/login", true);
-                if (string.IsNullOrWhiteSpace(userName)) Navigation.NavigateTo("/login", true);
-                else
-                {
-                    //Gọi API nếu chưa có data
-                    checkerDetailDto = await checkerDetailService.GetCheckerDetail(userName);
-                    if (checkerDetailDto != null)
-                    {
-                        message = "ĐÃ CÓ THỂ VÀO XEM PHIẾU CHECKER!";
-                    }
-                    else
-                    {
-                        message = "DOANH THU ĐANG ĐƯỢC CẬP NHẬT...";
-                    }
-                }
+                checkerDetailDto = JsonConvert.DeserializeObject<CheckerDetailDto>(jsonload)!;
             }
-            catch (Exception ex)
+            else
             {
-                message = $"Không tìm thấy phiếu '{userName}'. Liên hệ lại checker kiểm tra!";
+                checkerDetailDto = await checkerDetailService.GetCheckerDetail(userName);
             }
 
-            StateHasChanged(); // Bắt buộc để cập nhật UI
+            if (checkerDetailDto != null)
+            {
+                var jsonData = JsonConvert.SerializeObject(checkerDetailDto);
+
+                Preferences.Set("_loadDatas", jsonData);
+                revenue = checkerDetailDto.revenue;
+                isLoaded = true;
+                message = "Đã có thể xem phiếu!";
+            }
+            else
+            {
+                message = "Checker đang cập nhật doanh thu, vui lòng đợi thông báo trên nhóm ZALO";
+            }
         }
-
+        catch (Exception ex)
+        {
+            message = $"Không tìm thấy phiếu '{userName}'. Liên hệ lại checker kiểm tra!";
+        }
     }
 }

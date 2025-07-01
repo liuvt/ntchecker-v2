@@ -76,7 +76,7 @@ public class CheckerService : ICheckerService
         try
         {
             var response = await httpClient.GetAsync($"api/Checker/{userId}/History/{date}");
-
+           //Console.WriteLine($"httpClient.GetAsync: {httpClient.BaseAddress}api/Checker/{encodedUserId}/History/{date}");
             if (response.IsSuccessStatusCode)
             {
                 if (response.StatusCode == HttpStatusCode.NoContent)
@@ -98,7 +98,6 @@ public class CheckerService : ICheckerService
         {
             // Có thể log ex ở đây
             throw new HttpRequestException($"Lỗi không load được data tư server --{ex}");
-            throw new ApplicationException("Lỗi khi gọi API", ex);
         }
     }
 }

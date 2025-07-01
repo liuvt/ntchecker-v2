@@ -1,349 +1,354 @@
-﻿@inject PersistentComponentState AppState
+﻿@inject ILogger<CheckerDetailHistoryComponent> Logger
+@inject PersistentComponentState AppState
 @implements IDisposable
-@inject ILogger<CheckerDetailHistoryComponent> Logger
 @inject IJSRuntime Js
 
 <!-- Tailwind CSS -->
 <div>
-	<div class="mb-4 text-center">
-		<p class="flex items-center justify-center gap-2 text-xl font-semibold text-green-600 md:text-2xl">
-			<img width="32" src="../icons/checkerdetail/bill-v2.png" alt="Đang tải..." />
-			PHIẾU CHECKER v2.2
-		</p>
-		<p class="text-sm font-bold text-red-400 italic underline">@(revenue?.createdAt ?? "")</p>
-	</div>
-	@if (StateMessage != string.Empty)
-	{
-		<div class="flex justify-center">@StateMessage</div>
-	}
-	else if (revenue.typeCar == "Khoán điện")
-	{
-		<div class="flex justify-center">ĐÂY LÀ XE KHOÁN KHÔNG CÓ PHIẾU</div>
-	}
-	else if (isLoaded)
-	{
-		<div class="flex justify-center" hidden>
-			<div class="h-8 w-8 animate-spin rounded-full border-t-2 border-green-500"></div>
-		</div>
+    <div class="mb-4 text-center">
+        <p class="flex items-center justify-center gap-2 text-xl font-semibold text-green-600 md:text-2xl">
+            <img width="32" src="../icons/checkerdetail/bill-v2.png" alt="Đang tải..." />
+            PHIẾU CHECKER v2.2
+        </p>
+        <p class="text-sm font-bold text-red-400 italic underline">@(revenue?.createdAt ?? "")</p>
+    </div>
 
-		<div>
-			<div class="round-lg mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-				<div>
-					<p class="flex items-center text-base text-green-600 md:text-lg">
-						<img width="18" src="../icons/checkerdetail/carId.png" alt="Đang tải..." />
-						<span class="ml-1 font-medium">Số hiệu: @(revenue.numberCar)</span>
-					</p>
-					<p class="flex items-center text-base text-green-600 md:text-lg">
-						<img width="18" src="../icons/checkerdetail/identity-theft.png" alt="Đang tải..." />
-						<span class="ml-1 font-medium">Tên: @revenue.userId.ToUpper()</span>
-					</p>
-					<p class="flex items-center text-base text-green-600 md:text-lg">
-						<img width="18" src="../icons/checkerdetail/revenue-month.png" alt="Đang tải..." />
-						<span class="ml-1 font-medium">Doanh thu tổng: @revenue.revenueByMonth.ltvVNDCurrency()</span>
-					</p>
-					<div class="md:hidden">
-						<button class="mt-2 flex items-center gap-2 rounded bg-blue-500 px-1 py-1 text-white hover:bg-blue-600" @onclick="forceDesktopView">
-							<img width="18" src="../icons/checkerdetail/icons8-view.png" alt="Đang tải..." />
-							Chế độ Xem khác
-						</button>
-					</div>
+    @if (isLoaded)
+    {
+        @if (revenue == null)
+        {
+            <div class="flex justify-center">KHÔNG TÌM THẤY PHIẾU CỦA @userId , NGÀY: @date</div>
+        }
+        else if (revenue.typeCar == "Khoán điện")
+        {
+            <div class="flex justify-center">ĐÂY LÀ XE KHOÁN KHÔNG CÓ PHIẾU</div>
+        }
+        else
+        {
+            <div class="flex justify-center" hidden>
+                <div class="h-8 w-8 animate-spin rounded-full border-t-2 border-green-500"></div>
+            </div>
 
-				</div>
-			</div>
+            <div>
+                <div class="round-lg mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                        <p class="flex items-center text-base text-green-600 md:text-lg">
+                            <img width="18" src="../icons/checkerdetail/carId.png" alt="Đang tải..." />
+                            <span class="ml-1 font-medium">Số hiệu: @(revenue.numberCar)</span>
+                        </p>
+                        <p class="flex items-center text-base text-green-600 md:text-lg">
+                            <img width="18" src="../icons/checkerdetail/identity-theft.png" alt="Đang tải..." />
+                            <span class="ml-1 font-medium">Tên: @revenue.userId.ToUpper()</span>
+                        </p>
+                        <p class="flex items-center text-base text-green-600 md:text-lg">
+                            <img width="18" src="../icons/checkerdetail/revenue-month.png" alt="Đang tải..." />
+                            <span class="ml-1 font-medium">Doanh thu tổng: @revenue.revenueByMonth.ltvVNDCurrency()</span>
+                        </p>
+                        <div class="md:hidden">
+                            <button class="mt-2 flex items-center gap-2 rounded bg-blue-500 px-1 py-1 text-white hover:bg-blue-600" @onclick="forceDesktopView">
+                                <img width="18" src="../icons/checkerdetail/icons8-view.png" alt="Đang tải..." />
+                                Chế độ Xem khác
+                            </button>
+                        </div>
 
-			@if (checkerDetailDto.countContract > 0)
-			{
-				<!-- Table Contracts -->
-				<div class="hidden overflow-x-auto rounded-xl bg-green-50 p-1 shadow-xl inset-ring inset-ring-gray-950/5 sm:block dark:bg-white/10 dark:inset-ring-white/10">
-					<div class="not-prose overflow-auto rounded-lg bg-white outline outline-white/5 dark:bg-gray-950/50">
-						<p class="mb-2 flex pt-2 pl-3 text-xl font-semibold text-blue-700">
-							<img width="28" src="../icons/checkerdetail/contract.png" />
-							HỢP ĐỒNG <span class="align-top text-xs">(SL: @checkerDetailDto.countContract)</span>
-						</p>
-						<table class="w-full table-auto border-collapse text-sm text-gray-500">
-							<thead class="bg-green-600 text-white">
-								<tr>
-									<th class="px-2 py-1">STT</th>
-									<th class="px-2 py-1 text-center">Hợp đồng</th>
-									<th class="px-2 py-1 text-center">Giá hợp đồng</th>
-									<th class="px-2 py-1 text-center">KM/Giờ quy định</th>
-									<th class="px-2 py-1 text-center">KM/Giờ vượt</th>
-									<th class="px-2 py-1 text-center">Truy thu</th>
-									<th class="px-2 py-1 text-center">Khuyến mãi</th>
-									<th class="px-2 py-1">Thực thu</th>
-								</tr>
-							</thead>
-							@foreach (var item in contracts)
-							{
-								<tbody>
-									<!-- Loop for contract rows here -->
-								<td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@(contracts.IndexOf(item) + 1)</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctKey</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctDefaultAmount.ltvVNDCurrency()</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctDefaultDistance</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctOverDistance</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-right text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctSurcharge.ltvVNDCurrency()</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctPromotion</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctTotalPrice.ltvVNDCurrency()</td>
-								</tbody>
-							}
+                    </div>
+                </div>
 
-						</table>
-						<div class="p-2 text-center font-semibold text-blue-700">
-							TỔNG TIỀN HỢP ĐỒNG: @checkerDetailDto.TotalPriceContract.ltvVNDCurrency()
-						</div>
-					</div>
-				</div>
-				@foreach (var (item, index) in contracts.Select((value, i) => (value, i)))
-				{
-					<!-- Mobile cards -->
-					<div class="sm:hidden">
-						<!-- Loop over _contract.contracts -->
-						<div class="mb-4 rounded bg-white p-4 shadow-md">
-							<h3 class="text-lg font-semibold text-blue-700">HỢP ĐỒNG</h3>
-							<p><strong>HĐ</strong>: @(index + 1)</p>
-							<p><strong>Di chuyển</strong>: @item.ctKey</p>
-							<p><strong>Giá HĐ</strong>: @item.ctDefaultAmount.ltvVNDCurrency()</p>
-							<p><strong>KM/Giờ quy định</strong>: @item.ctDefaultDistance</p>
-							@if (item.ctSurcharge > 0)
-							{
-								<div>
-									<p class="text-center font-semibold">CHÊNH LỆCH HỢP ĐỒNG</p>
-									<p class="text-green-700">KM/Giờ vượt: @item.ctOverDistance</p>
-									<p class="text-green-700">Truy thu: @item.ctSurcharge.ltvVNDCurrency()</p>
-									<p class="text-green-700">Khuyến mãi (-): @item.ctPromotion</p>
-								</div>
-							}
-							<p class="mt-2 text-right text-red-600">THỰC THU: @item.ctTotalPrice.ltvVNDCurrency()</p>
-						</div>
-					</div>
-				}
-			}
-			<div class="mt-5"></div>
-			@if (checkerDetailDto.countTimepices > 0)
-			{
-				<!-- Table Contracts -->
-				<div class="hidden overflow-x-auto rounded-xl bg-green-50 p-1 shadow-xl inset-ring inset-ring-gray-950/5 sm:block dark:bg-white/10 dark:inset-ring-white/10">
-					<div class="not-prose overflow-auto rounded-lg bg-white outline outline-white/5 dark:bg-gray-950/50">
-						<p class="mb-2 flex pt-2 pl-3 text-xl font-semibold text-blue-700">
-							<img width="28" src="../icons/checkerdetail/log.png" />
-							CUỐC LẺ <span class="align-top text-xs">(SL: @checkerDetailDto.countTimepices)</span>
-						</p>
-						<table class="w-full table-auto border-collapse text-sm text-gray-500">
-							<thead class="bg-green-600 text-white">
-								<tr>
-									<th class="px-2 py-1">STT</th>
-									<th class="px-2 py-1">Giờ đón</th>
-									<th class="px-2 py-1">Giờ trả</th>
-									<th class="px-2 py-1">Số KM</th>
-									<th class="px-2 py-1">Số tiền</th>
-									<th class="px-2 py-1">Điểm đón</th>
-									<th class="px-2 py-1">Điểm trả</th>
-									<th class="px-2 py-1">Loại</th>
-								</tr>
-							</thead>
-							@foreach (var item in timepieces)
-							{
-								<tbody>
-								<td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@(timepieces.IndexOf(item) + 1)</td>
-								<td class="border-b border-gray-100 px-2 py-1 pl-4 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpTimeStart</td>
-								<td class="border-b border-gray-100 px-2 py-1 pl-4 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpTimeEnd</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpDistance</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-right text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpPrice.ltvVNDCurrency()</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpPickUp</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpDropOut</td>
-								<td class="border-b border-gray-100 px-2 py-1 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpType</td>
-								</tbody>
-							}
+                @if (checkerDetailDto.countContract > 0)
+                {
+                    <!-- Table Contracts -->
+                    <div class="hidden overflow-x-auto rounded-xl bg-green-50 p-1 shadow-xl inset-ring inset-ring-gray-950/5 sm:block dark:bg-white/10 dark:inset-ring-white/10">
+                        <div class="not-prose overflow-auto rounded-lg bg-white outline outline-white/5 dark:bg-gray-950/50">
+                            <p class="mb-2 flex pt-2 pl-3 text-xl font-semibold text-blue-700">
+                                <img width="28" src="../icons/checkerdetail/contract.png" />
+                                HỢP ĐỒNG <span class="align-top text-xs">(SL: @checkerDetailDto.countContract)</span>
+                            </p>
+                            <table class="w-full table-auto border-collapse text-sm text-gray-500">
+                                <thead class="bg-green-600 text-white">
+                                    <tr>
+                                        <th class="px-2 py-1">STT</th>
+                                        <th class="px-2 py-1 text-center">Hợp đồng</th>
+                                        <th class="px-2 py-1 text-center">Giá hợp đồng</th>
+                                        <th class="px-2 py-1 text-center">KM/Giờ quy định</th>
+                                        <th class="px-2 py-1 text-center">KM/Giờ vượt</th>
+                                        <th class="px-2 py-1 text-center">Truy thu</th>
+                                        <th class="px-2 py-1 text-center">Khuyến mãi</th>
+                                        <th class="px-2 py-1">Thực thu</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var item in contracts)
+                                {
+                                    <tbody>
+                                        <!-- Loop for contract rows here -->
+                                    <td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@(contracts.IndexOf(item) + 1)</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctKey</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctDefaultAmount.ltvVNDCurrency()</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctDefaultDistance</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctOverDistance</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-right text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctSurcharge.ltvVNDCurrency()</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctPromotion</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.ctTotalPrice.ltvVNDCurrency()</td>
+                                    </tbody>
+                                }
 
-						</table>
-						<div class="p-2 text-center font-semibold text-blue-700">
-							TỔNG TIỀN CUỐC XE KHÁCH LẺ: @checkerDetailDto.TotalPriceTimepices.ltvVNDCurrency()
-						</div>
-					</div>
-				</div>
+                            </table>
+                            <div class="p-2 text-center font-semibold text-blue-700">
+                                TỔNG TIỀN HỢP ĐỒNG: @checkerDetailDto.TotalPriceContract.ltvVNDCurrency()
+                            </div>
+                        </div>
+                    </div>
+                    @foreach (var (item, index) in contracts.Select((value, i) => (value, i)))
+                    {
+                        <!-- Mobile cards -->
+                        <div class="sm:hidden">
+                            <!-- Loop over _contract.contracts -->
+                            <div class="mb-4 rounded bg-white p-4 shadow-md">
+                                <h3 class="text-lg font-semibold text-blue-700">HỢP ĐỒNG</h3>
+                                <p><strong>HĐ</strong>: @(index + 1)</p>
+                                <p><strong>Di chuyển</strong>: @item.ctKey</p>
+                                <p><strong>Giá HĐ</strong>: @item.ctDefaultAmount.ltvVNDCurrency()</p>
+                                <p><strong>KM/Giờ quy định</strong>: @item.ctDefaultDistance</p>
+                                @if (item.ctSurcharge > 0)
+                                {
+                                    <div>
+                                        <p class="text-center font-semibold">CHÊNH LỆCH HỢP ĐỒNG</p>
+                                        <p class="text-green-700">KM/Giờ vượt: @item.ctOverDistance</p>
+                                        <p class="text-green-700">Truy thu: @item.ctSurcharge.ltvVNDCurrency()</p>
+                                        <p class="text-green-700">Khuyến mãi (-): @item.ctPromotion</p>
+                                    </div>
+                                }
+                                <p class="mt-2 text-right text-red-600">THỰC THU: @item.ctTotalPrice.ltvVNDCurrency()</p>
+                            </div>
+                        </div>
+                    }
+                }
+                <div class="mt-5"></div>
+                @if (checkerDetailDto.countTimepices > 0)
+                {
+                    <!-- Table Contracts -->
+                    <div class="hidden overflow-x-auto rounded-xl bg-green-50 p-1 shadow-xl inset-ring inset-ring-gray-950/5 sm:block dark:bg-white/10 dark:inset-ring-white/10">
+                        <div class="not-prose overflow-auto rounded-lg bg-white outline outline-white/5 dark:bg-gray-950/50">
+                            <p class="mb-2 flex pt-2 pl-3 text-xl font-semibold text-blue-700">
+                                <img width="28" src="../icons/checkerdetail/log.png" />
+                                CUỐC LẺ <span class="align-top text-xs">(SL: @checkerDetailDto.countTimepices)</span>
+                            </p>
+                            <table class="w-full table-auto border-collapse text-sm text-gray-500">
+                                <thead class="bg-green-600 text-white">
+                                    <tr>
+                                        <th class="px-2 py-1">STT</th>
+                                        <th class="px-2 py-1">Giờ đón</th>
+                                        <th class="px-2 py-1">Giờ trả</th>
+                                        <th class="px-2 py-1">Số KM</th>
+                                        <th class="px-2 py-1">Số tiền</th>
+                                        <th class="px-2 py-1">Điểm đón</th>
+                                        <th class="px-2 py-1">Điểm trả</th>
+                                        <th class="px-2 py-1">Loại</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var item in timepieces)
+                                {
+                                    <tbody>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">@(timepieces.IndexOf(item) + 1)</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 pl-4 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpTimeStart</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 pl-4 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpTimeEnd</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpDistance</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-right text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpPrice.ltvVNDCurrency()</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpPickUp</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpDropOut</td>
+                                    <td class="border-b border-gray-100 px-2 py-1 text-left text-gray-500 dark:border-gray-700 dark:text-gray-400">@item.tpType</td>
+                                    </tbody>
+                                }
 
-				@foreach (var (item, index) in timepieces.Select((value, i) => (value, i)))
-				{
-					<!-- Hiển thị trên mobile: block, ẩn từ màn hình sm (tablet) trở lên -->
-					<div class="mt-2 block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md sm:hidden">
-						<!-- Header -->
-						<div class="flex items-center justify-between border-b border-gray-100 p-4">
-							<span class="text-primary-600 text-lg font-semibold">CUỐC LẺ</span>
-							<img width="50" src="@((item.tpType.Contains("Xanh SM") ? "../imgs/logo-gsm.png" : "../imgs/logo-namthang.png"))" />
-						</div>
+                            </table>
+                            <div class="p-2 text-center font-semibold text-blue-700">
+                                TỔNG TIỀN CUỐC XE KHÁCH LẺ: @checkerDetailDto.TotalPriceTimepices.ltvVNDCurrency()
+                            </div>
+                        </div>
+                    </div>
 
-						<!-- Content -->
-						<div class="space-y-1 p-4 text-sm text-gray-700">
-							<p><b>Cuốc xe số:</b> @(index + 1)</p>
-							<p><b>Khách lên xe:</b> @item.tpTimeStart</p>
-							<p><b>Khách xuống xe:</b> @item.tpTimeEnd</p>
-							<p><b>Khoảng cách:</b> @item.tpDistance km</p>
-							<p><b>Điểm đi:</b> <i><u>@item.tpPickUp</u></i></p>
-							<p><b>Điểm đến:</b> <i><u>@item.tpDropOut</u></i></p>
-							<p class="text-primary-600">
-								Ghi chú: @(string.IsNullOrWhiteSpace(item.tpType) ? "Thu theo đồng hồ" : item.tpType)
-							</p>
-						</div>
+                    @foreach (var (item, index) in timepieces.Select((value, i) => (value, i)))
+                    {
+                        <!-- Hiển thị trên mobile: block, ẩn từ màn hình sm (tablet) trở lên -->
+                        <div class="mt-2 block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md sm:hidden">
+                            <!-- Header -->
+                            <div class="flex items-center justify-between border-b border-gray-100 p-4">
+                                <span class="text-primary-600 text-lg font-semibold">CUỐC LẺ</span>
+                                <img width="50" src="@((item.tpType.Contains("Xanh SM") ? "../imgs/logo-gsm.png" : "../imgs/logo-namthang.png"))" />
+                            </div>
 
-						<!-- Actions -->
-						<div class="flex items-center justify-end border-t border-gray-100 px-4 py-2">
-							<button class="text-sm font-semibold text-red-600 hover:underline">THỰC THU: @item.tpPrice.ltvVNDCurrency()</button>
-						</div>
-					</div>
-				}
-			}
+                            <!-- Content -->
+                            <div class="space-y-1 p-4 text-sm text-gray-700">
+                                <p><b>Cuốc xe số:</b> @(index + 1)</p>
+                                <p><b>Khách lên xe:</b> @item.tpTimeStart</p>
+                                <p><b>Khách xuống xe:</b> @item.tpTimeEnd</p>
+                                <p><b>Khoảng cách:</b> @item.tpDistance km</p>
+                                <p><b>Điểm đi:</b> <i><u>@item.tpPickUp</u></i></p>
+                                <p><b>Điểm đến:</b> <i><u>@item.tpDropOut</u></i></p>
+                                <p class="text-primary-600">
+                                    Ghi chú: @(string.IsNullOrWhiteSpace(item.tpType) ? "Thu theo đồng hồ" : item.tpType)
+                                </p>
+                            </div>
 
-			<!-- Footer Summary -->
-			<div class="mt-4 overflow-x-auto rounded-xl bg-green-50 p-1 shadow-xl inset-ring inset-ring-gray-950/5 dark:bg-white/10 dark:inset-ring-white/10">
-				<div class="not-prose overflow-auto rounded-lg bg-white outline outline-white/5 dark:bg-gray-950/50">
-					<div class="flex flex-col items-center justify-between gap-4 p-2 md:flex-row">
-						<div class="h-full w-full">
-							<p class="text-lg font-bold text-gray-700">HỢP ĐỒNG: @checkerDetailDto.TotalPriceContract.ltvVNDCurrency() <span class="align-top text-xs"> (SL: @checkerDetailDto.countContract)</span></p>
-							<p class="text-lg font-bold text-gray-700">CUỐC LẺ: @checkerDetailDto.TotalPriceTimepices.ltvVNDCurrency() <span class="align-top text-xs"> (SL: @checkerDetailDto.countTimepices)</span></p>
-							<p class="text-xl font-bold text-blue-700">TỔNG: @totalAmount</p>
-							<ul class="list-inside list-none space-y-1 pl-2 text-gray-700">
-								<li>
-									<div class="flex gap-2">
-										<img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
-										<span class="text-base">Khuyến mãi Nam Thắng (-): @revenue.discountNT.ltvVNDCurrency()</span>
-									</div>
-								</li>
-								<li>
-									<div class="flex gap-2">
-										<img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
-										<span class="text-base">Khuyến mãi Xanh SM (-): @revenue.discountGSM.ltvVNDCurrency()</span>
-									</div>
-								</li>
-								<li>
-									<div class="flex gap-2">
-										<img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
-										<span class="text-base">Ví/Tip (-): @revenue.walletGSM.ltvVNDCurrency()</span>
-									</div>
-								</li>
-								<li>
-									<div class="flex gap-2">
-										<img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
-										<span class="text-base">Giảm trừ khác (-): @revenue.discountOther.ltvVNDCurrency()</span>
-									</div>
-								</li>
-								<li>
-									<div class="flex gap-2">
-										<img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
-										<span class="text-base">Truy thu khác (+): @revenue.arrearsOther.ltvVNDCurrency()</span>
-									</div>
-								</li>
-							</ul>
-							<div class="mt-2 rounded-lg border-t border-b border-green-700 px-2 py-2 shadow-lg">
-								<div class="flex items-center gap-2 font-bold text-red-500">
-									<img width="32" src="../icons/checkerdetail/cash.png" alt="Đang tải..." />
-									<span class="mt-2 text-2xl">TỔNG NỘP: @revenue.totalPrice.ltvVNDCurrency()</span>
-								</div>
-								<div class="mt-2 flex items-center gap-2 border-t text-sm text-pink-500">
-									<img width="18" src="../icons/checkerdetail/revenue-date.png" alt="Đang tải..." />
-									<span class="text-xl font-bold">Doanh thu ngày: @revenue.revenueByDate.ltvVNDCurrency()</span>
-								</div>
-							</div>
-						</div>
-						<div class="border-green-700 sm:border-l">
-							<img class="h-72 w-72 object-contain" src="imgs/logo-namthang.png" alt="QR Code" />
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	}
-	else
-	{
-		<div class="flex justify-center">ĐANG TẢI....</div>
-	}
+                            <!-- Actions -->
+                            <div class="flex items-center justify-end border-t border-gray-100 px-4 py-2">
+                                <button class="text-sm font-semibold text-red-600 hover:underline">THỰC THU: @item.tpPrice.ltvVNDCurrency()</button>
+                            </div>
+                        </div>
+                    }
+                }
+
+                <!-- Footer Summary -->
+                <div class="mt-4 overflow-x-auto rounded-xl bg-green-50 p-1 shadow-xl inset-ring inset-ring-gray-950/5 dark:bg-white/10 dark:inset-ring-white/10">
+                    <div class="not-prose overflow-auto rounded-lg bg-white outline outline-white/5 dark:bg-gray-950/50">
+                        <div class="flex flex-col items-center justify-between gap-4 p-2 md:flex-row">
+                            <div class="h-full w-full">
+                                <p class="text-lg font-bold text-gray-700">HỢP ĐỒNG: @checkerDetailDto.TotalPriceContract.ltvVNDCurrency() <span class="align-top text-xs"> (SL: @checkerDetailDto.countContract)</span></p>
+                                <p class="text-lg font-bold text-gray-700">CUỐC LẺ: @checkerDetailDto.TotalPriceTimepices.ltvVNDCurrency() <span class="align-top text-xs"> (SL: @checkerDetailDto.countTimepices)</span></p>
+                                <p class="text-xl font-bold text-blue-700">TỔNG: @totalAmount</p>
+                                <ul class="list-inside list-none space-y-1 pl-2 text-gray-700">
+                                    <li>
+                                        <div class="flex gap-2">
+                                            <img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
+                                            <span class="text-base">Khuyến mãi Nam Thắng (-): @revenue.discountNT.ltvVNDCurrency()</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex gap-2">
+                                            <img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
+                                            <span class="text-base">Khuyến mãi Xanh SM (-): @revenue.discountGSM.ltvVNDCurrency()</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex gap-2">
+                                            <img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
+                                            <span class="text-base">Ví/Tip (-): @revenue.walletGSM.ltvVNDCurrency()</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex gap-2">
+                                            <img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
+                                            <span class="text-base">Giảm trừ khác (-): @revenue.discountOther.ltvVNDCurrency()</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex gap-2">
+                                            <img width="24" height="24" src="../icons/checkerdetail/star.png" alt="Đang tải..." />
+                                            <span class="text-base">Truy thu khác (+): @revenue.arrearsOther.ltvVNDCurrency()</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div class="mt-2 rounded-lg border-t border-b border-green-700 px-2 py-2 shadow-lg">
+                                    <div class="flex items-center gap-2 font-bold text-red-500">
+                                        <img width="32" src="../icons/checkerdetail/cash.png" alt="Đang tải..." />
+                                        <span class="mt-2 text-2xl">TỔNG NỘP: @revenue.totalPrice.ltvVNDCurrency()</span>
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-2 border-t text-sm text-pink-500">
+                                        <img width="18" src="../icons/checkerdetail/revenue-date.png" alt="Đang tải..." />
+                                        <span class="text-xl font-bold">Doanh thu ngày: @revenue.revenueByDate.ltvVNDCurrency()</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-green-700 sm:border-l">
+                                <img class="h-72 w-72 object-contain" src="imgs/logo-namthang.png" alt="QR Code" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else if (!string.IsNullOrWhiteSpace(StateMessage) && !isLoaded)
+    {
+        <div class="flex justify-center font-bold text-red-500">@StateMessage</div>
+    }
+    else
+    {
+        <div class="flex justify-center">ĐANG TẢI....</div>
+    }
+
 </div>
 
 @code {
 
-	[Parameter]
-	public string userId { get; set; } = string.Empty;
-	[Parameter]
-	public string date { get; set; } = string.Empty;
-	[Inject]
-	protected ICheckerService checkerService { get; set; } = default!;
-	protected CheckerDetailDto checkerDetailDto { get; set; } = new CheckerDetailDto();
-	protected RevenueDto revenue { get; set; } = new RevenueDto();
-	protected List<TimepieceDto> timepieces { get; set; } = new List<TimepieceDto>();
-	protected List<ContractDto> contracts { get; set; } = new List<ContractDto>();
-	protected string totalAmount { get; set; } = string.Empty; // Tổng hợp đồng và cuốc lẻ
+    [Parameter]
+    public string userId { get; set; } = string.Empty;
+    [Parameter]
+    public string date { get; set; } = string.Empty;
+    [Inject]
+    protected ICheckerService checkerService { get; set; } = default!;
+    public CheckerDetailDto checkerDetailDto { get; set; } = new CheckerDetailDto();
+    public RevenueDto revenue { get; set; } = new RevenueDto();
+    public List<TimepieceDto> timepieces { get; set; } = new List<TimepieceDto>();
+    public List<ContractDto> contracts { get; set; } = new List<ContractDto>();
+    protected string totalAmount { get; set; } = string.Empty; // Tổng hợp đồng và cuốc lẻ
 
-	protected bool isLoaded { get; set; } = false;
-	protected string isType { get; set; } = string.Empty;
-	protected string StateMessage { get; set; } = string.Empty;
+    protected bool isLoaded { get; set; } = false;
+    protected string isType { get; set; } = string.Empty;
+    protected string StateMessage { get; set; } = string.Empty;
 
-	private PersistingComponentStateSubscription subscription;
+    private PersistingComponentStateSubscription subscription;
 
-	protected override async Task OnInitializedAsync()
-	{
-		try
-		{
-			Logger.LogInformation("date" + date); // LOG 2
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Lưu dữ liệu và appState
+            subscription = AppState.RegisterOnPersisting(PersistState);
+            //Kiểm tra xem đã có dữ liệu trong AppState nếu có sử dụng luôn không cần fetch từ server
+            if (!AppState.TryTakeFromJson<CheckerDetailDto>(nameof(CheckerDetailDto), out var _checkerDetailDto))
+            {
+                //Gọi API nếu chưa có data
+                Logger.LogInformation("Không có dữ liệu AppState, đang gọi API từ server");
+                checkerDetailDto = await checkerService.GetCheckerDetailHistory(userId, date);
 
-			// Lưu dữ liệu và appState
-			subscription = AppState.RegisterOnPersisting(PersistState);
+            }
+            else
+            {
+                Logger.LogInformation("Tìm thấy dữ liệu AppState, không cần gọi API");
+                checkerDetailDto = _checkerDetailDto!;
+            }
 
-			//Kiểm tra xem đã có dữ liệu trong AppState nếu có sử dụng luôn không cần fetch từ server
-			if (!AppState.TryTakeFromJson<CheckerDetailDto>("checkerHistory", out var _checkerDetailDto))
-			{
-				Logger.LogInformation("Không tìm thấy AppState, gọi API"); // LOG 2
-				//Gọi API nếu chưa có data
-				checkerDetailDto = await checkerService.GetCheckerDetailHistory(userId, date);
-				//Hiển thị
-			}
-			else
-			{
-				Logger.LogInformation("Tìm thấy dữ liệu AppState"); // LOG 3
-				//Nếu dữ liệu đã có trong AppState thì sử dụng dữ liệu đó
-				checkerDetailDto = _checkerDetailDto!;
-			}
-			
-			await HandleDisplayData(checkerDetailDto);
-		}
-		catch (Exception ex)
-		{
-			StateMessage = $"Không tìm thấy phiếu '{userId}'. Liên hệ lại checker kiểm tra!";
-			Logger.LogInformation($"{ex.Message}: Lỗi khi khởi tạo CheckerDetailComponent");
-		}
-	}
+            HandleDisplayData(checkerDetailDto);
+        }
+        catch (Exception ex)
+        {
+            StateMessage = $"KHÔNG TÌM THẤY PHIẾU CỦA {userId} NGÀY {date}";
+            Logger.LogInformation($"{ex.Message}: Lỗi khi khởi tạo không gọi được API");
+        }
+    }
 
-	// Xử lý dữ liệu để hiển thị
-	private async Task HandleDisplayData(CheckerDetailDto _data)
-	{
-		revenue = _data.revenue;
-		isType = revenue.typeCar;
-		if (isType != "Khoán điện") // Nếu không phải xe khoán thực hiện load dữ liệu
-		{
-			contracts = _data.contracts;
-			timepieces = _data.timepieces;
-			totalAmount = (_data.TotalPriceContract + _data.TotalPriceTimepices)
-									.ltvVNDCurrency();
-		}
-		isLoaded = true;
-	}
+    // Xử lý dữ liệu để hiển thị
+    private void HandleDisplayData(CheckerDetailDto _data)
+    {
+        revenue = _data.revenue!;
+        isType = revenue.typeCar;
+        if (isType != "Khoán điện") // Nếu không phải xe khoán thực hiện load dữ liệu
+        {
+            contracts = _data.contracts!;
+            timepieces = _data.timepieces!;
+            totalAmount = (_data.TotalPriceContract! + _data.TotalPriceTimepices!)
+                                    .ltvVNDCurrency();
+        }
+        isLoaded = true;
+    }
 
-	//Lưu dữ liệu về AppState
-	private Task PersistState()
-	{
-		//Tham số là {Token} và dữ liệu
-		AppState.PersistAsJson("checkerHistory", checkerDetailDto);
-		return Task.CompletedTask;
-	}
+    //Lưu dữ liệu về AppState
+    private Task PersistState()
+    {
+        //Tham số là {Token} và dữ liệu
+        AppState.PersistAsJson(nameof(CheckerDetailDto), checkerDetailDto);
+        return Task.CompletedTask;
+    }
 
-	void IDisposable.Dispose() => subscription.Dispose();
+    void IDisposable.Dispose() => subscription.Dispose();
 
-	// Chuyển đổi bảng điều khiển sang chế độ máy tính
-	protected bool isDesktopView { get; set; } = false;
-	protected async Task forceDesktopView()
-	{
-		isDesktopView = !isDesktopView;
-		await Js.InvokeVoidAsync("forceDesktopView");
-		StateHasChanged(); // Cập nhật lại giao diện
-	}
+    // Chuyển đổi bảng điều khiển sang chế độ máy tính
+    protected bool isDesktopView { get; set; } = false;
+    protected async Task forceDesktopView()
+    {
+        isDesktopView = !isDesktopView;
+        await Js.InvokeVoidAsync("forceDesktopView");
+        StateHasChanged(); // Cập nhật lại giao diện
+    }
 }
 

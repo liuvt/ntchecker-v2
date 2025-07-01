@@ -1,12 +1,11 @@
 ﻿@page "/checkerdetail"
-@inject IJSRuntime Js
 
 <!-- Tailwind CSS -->
 <div>
     <div class="mb-4 text-center">
         <p class="flex items-center justify-center gap-2 text-xl font-semibold text-green-600 md:text-2xl">
             <img width="32" src="../icons/checkerdetail/bill-v2.png" alt="Đang tải..." />
-            PHIẾU CHECKER v2.2
+            DANH SACH CUỐC XE
         </p>
         <p class="text-sm font-bold text-red-400 italic underline">@revenue.createdAt</p>
     </div>
@@ -39,13 +38,6 @@
                         <img width="18" src="../icons/checkerdetail/revenue-month.png" alt="Đang tải..." />
                         <span class="ml-1 font-medium">Doanh thu tổng: @revenue.revenueByMonth.ltvVNDCurrency()</span>
                     </p>
-                    <div class="md:hidden">
-                        <button class="mt-2 flex items-center gap-2 rounded bg-blue-500 px-1 py-1 text-white hover:bg-blue-600" @onclick="forceDesktopView">
-                            <img width="18" src="../icons/checkerdetail/icons8-view.png" alt="Đang tải..." />
-                            Chế độ Xem khác
-                        </button>
-                    </div>
-
                 </div>
             </div>
 
@@ -271,69 +263,47 @@
     public bool isLoaded { get; set; } = false;
     public string isType { get; set; } = string.Empty;
     public string StateMessage { get; set; } = string.Empty;
-    public string displayList { get; set; } = string.Empty;
-
-    private PersistingComponentStateSubscription subscription;
 
     // You can add code here if needed
     public string userName { get; set; } = string.Empty;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-
-        if (firstRender)
+        var jsonData = Preferences.Get("_loadDatas", defaultValue: "");
+        if (!string.IsNullOrWhiteSpace(jsonData))
         {
             try
             {
-                //Load xem có lưu tên nguời dùng không
-                userName = Preferences.Get("userId", defaultValue: "");
+                checkerDetailDto = JsonConvert.DeserializeObject<CheckerDetailDto>(jsonData)!;
 
-                if (!Preferences.ContainsKey("userId")) Navigation.NavigateTo("/login", true);
-                if (string.IsNullOrWhiteSpace(userName)) Navigation.NavigateTo("/login", true);
-                else
+                if (checkerDetailDto != null)
                 {
-                    //Gọi API nếu chưa có data
-                    checkerDetailDto = await checkerDetailService.GetCheckerDetail(userName);
-                    //Hiển thị
-                    await HadleDisplayData(checkerDetailDto);
+                    HadleDisplayData(checkerDetailDto);
+                    return;
                 }
-                StateHasChanged(); // Bắt buộc để cập nhật UI
             }
             catch (Exception ex)
             {
-                StateMessage = $"Không tìm thấy phiếu '{userName}'. Liên hệ lại checker kiểm tra!";
+                StateMessage = "DỮ LIỆU LỖI. VUI LÒNG ĐĂNG NHẬP LẠI.";
+                Preferences.Remove("_loadDatas"); // Xoá nếu lỗi
             }
         }
+
     }
     // Xử lý dữ liệu để hiển thị
-    private async Task HadleDisplayData(CheckerDetailDto _data)
+    private void HadleDisplayData(CheckerDetailDto _data)
     {
-        try
+        revenue = _data.revenue;
+        isType = revenue.typeCar;
+        if (isType != "Khoán điện") // Nếu không phải xe khoán thực hiện load dữ liệu
         {
-            revenue = _data.revenue;
-            isType = revenue.typeCar;
-            if (isType != "Khoán điện") // Nếu không phải xe khoán thực hiện load dữ liệu
-            {
-                contracts = _data.contracts;
-                timepieces = _data.timepieces;
-                totalAmount = (_data.TotalPriceContract + _data.TotalPriceTimepices)
-                                        .ltvVNDCurrency();
-            }
-            isLoaded = true;
+            contracts = _data.contracts;
+            timepieces = _data.timepieces;
+            totalAmount = (_data.TotalPriceContract + _data.TotalPriceTimepices)
+                                    .ltvVNDCurrency();
         }
-
-        catch (Exception ex)
-        {
-            StateMessage = $"Không tìm thấy phiếu '{userName}'. Liên hệ lại checker kiểm tra!";
-        }
+        isLoaded = true;
 
     }
-    // Chuyển đổi bảng điều khiển sang chế độ máy tính
-    protected bool isDesktopView { get; set; } = false;
-    protected async Task forceDesktopView()
-    {
-        isDesktopView = !isDesktopView;
-        await Js.InvokeVoidAsync("forceDesktopView");
-        StateHasChanged(); // Cập nhật lại giao diện
-    }
+
 }

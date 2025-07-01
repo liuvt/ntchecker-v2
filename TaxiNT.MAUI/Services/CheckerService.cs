@@ -17,6 +17,7 @@ public class CheckerService : ICheckerService
         this.httpClient = _httpClient;
     }
 
+    // Danh sách lịch sữ doanh thu
     public async Task<List<CheckerDto>> GetsRevenueDetail(string userId)
     {
         try

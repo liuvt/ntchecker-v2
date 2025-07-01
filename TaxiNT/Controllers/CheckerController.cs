@@ -34,7 +34,7 @@ public class CheckerController : ControllerBase
     }
 
     [HttpGet("{userId}/History/{date}")]
-    public async Task<IActionResult> GetCheckerDetailHistory(string userId, string date)
+    public async Task<ActionResult<CheckerDetailDto>> GetCheckerDetailHistory(string userId, string date)
     {
         try
         {
@@ -48,9 +48,7 @@ public class CheckerController : ControllerBase
         catch (Exception ex)
         {
             logger.LogError(ex, "Error in GetCheckerDetailHistory");
-            logger.LogError("userId:" + userId);
-            logger.LogError("date:" + date);
-            return StatusCode(500, "Internal server error");
+            return new CheckerDetailDto();
         }
     }
 }

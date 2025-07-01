@@ -4,3 +4,17 @@
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
 </Router>
+
+@inject NavigationManager Navigation
+
+@code {
+    protected override void OnInitialized()
+    {
+        var userId = Preferences.Get("userId", defaultValue: "");
+
+        if (string.IsNullOrWhiteSpace(userId) && !Navigation.Uri.Contains("/login"))
+        {
+            Navigation.NavigateTo("/login", true);
+        }
+    }
+}
