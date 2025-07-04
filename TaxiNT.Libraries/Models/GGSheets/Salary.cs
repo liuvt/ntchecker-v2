@@ -31,5 +31,6 @@ public class Salary
 public class DeductionItem
 {
     public string Name { get; set; } = string.Empty;
+    public string NameAlias { get; set; } = string.Empty;
     public string Amount { get; set; } = string.Empty;
 }

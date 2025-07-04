@@ -7,6 +7,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 // UI: Register Client Services
 builder.Services.AddScoped<ICheckerService, CheckerService>();
 builder.Services.AddScoped<ICheckerDetailService, CheckerDetailService>();
+builder.Services.AddScoped<ISalaryService, SalaryService>();
 
 builder.Services.AddScoped(
     sp => new HttpClient {

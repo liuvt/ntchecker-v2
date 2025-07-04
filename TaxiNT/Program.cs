@@ -32,7 +32,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped(
     defaultClient => new HttpClient
     {
-        BaseAddress = new Uri(builder.Configuration["API:Monsterasp"] ?? throw new InvalidOperationException("Can't found [Secret Key] in appsettings.json !"))
+        BaseAddress = new Uri(builder.Configuration["API:Hosting"] ?? throw new InvalidOperationException("Can't found [Secret Key] in appsettings.json !"))
     });
 
 // API: Add SwaggerGen (dotnet add package Swashbuckle.AspNetCore)
@@ -67,11 +67,12 @@ builder.Services.AddSwaggerGen(
 builder.Services.AddScoped<IBankService, BankService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderByHistoryService, OrderByHistoryService>();
-builder.Services.AddScoped<ISalaryService, SalaryService>();
+builder.Services.AddScoped<ISalaryAPIService, SalaryAPIService>();
 
 // UI: Register Client Services
 builder.Services.AddScoped<ICheckerService, CheckerService>();
 builder.Services.AddScoped<ICheckerDetailService, CheckerDetailService>();
+builder.Services.AddScoped<ISalaryService, SalaryService>();
 
 var app = builder.Build();
 
@@ -92,6 +93,9 @@ else // API: Add run Swagger UI: https://localhost:7154/swagger/index.html
         }
     );
 }
+
+app.UseStaticFiles();
+app.UseRouting();
 
 app.UseHttpsRedirection();
 app.MapControllers();
