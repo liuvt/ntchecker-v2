@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaxiNT.Libraries", "..\Taxi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaxiNT.MAUI", "..\TaxiNT.MAUI\TaxiNT.MAUI.csproj", "{E16C7F67-EB75-446A-BEA4-0B6BE6655520}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaxiNT.MAUIWIN", "..\TaxiNT.MAUIWIN\TaxiNT.MAUIWIN.csproj", "{9A9236AC-0B5A-4D08-8C73-C857EC6A5247}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,10 @@ Global
 		{E16C7F67-EB75-446A-BEA4-0B6BE6655520}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{E16C7F67-EB75-446A-BEA4-0B6BE6655520}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E16C7F67-EB75-446A-BEA4-0B6BE6655520}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A9236AC-0B5A-4D08-8C73-C857EC6A5247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A9236AC-0B5A-4D08-8C73-C857EC6A5247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A9236AC-0B5A-4D08-8C73-C857EC6A5247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A9236AC-0B5A-4D08-8C73-C857EC6A5247}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

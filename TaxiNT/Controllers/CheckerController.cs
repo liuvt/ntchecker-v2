@@ -28,7 +28,6 @@ public class CheckerController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error in GetsRevenueDetail");
             return StatusCode(500, "Internal server error");
         }
     }

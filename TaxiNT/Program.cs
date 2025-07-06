@@ -94,11 +94,12 @@ else // API: Add run Swagger UI: https://localhost:7154/swagger/index.html
     );
 }
 
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseHttpsRedirection();
 app.MapControllers();
+
 app.UseAntiforgery();
 
 // Xữ lý Header: 

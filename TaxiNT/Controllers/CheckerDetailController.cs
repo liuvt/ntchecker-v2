@@ -32,7 +32,7 @@ public class CheckerDetailController : ControllerBase
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error in GetCheckerDetail");
+            logger.LogError(ex, "Error limit get api GoogleSheet");
             return StatusCode(500, "Internal server error");
         }
     }
