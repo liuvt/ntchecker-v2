@@ -1,10 +1,15 @@
-﻿using TaxiNT.Services;
-using TaxiNT.Components;
-using TaxiNT.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using TaxiNT.Client.Services.Interfaces;
+using System.Text;
 using TaxiNT.Client.Services;
+using TaxiNT.Client.Services.Interfaces;
+using TaxiNT.Components;
+using TaxiNT.Services;
+using TaxiNT.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,8 +37,31 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped(
     defaultClient => new HttpClient
     {
-        BaseAddress = new Uri(builder.Configuration["API:Hosting"] ?? throw new InvalidOperationException("Can't found [Secret Key] in appsettings.json !"))
+        BaseAddress = new Uri(builder.Configuration["API:Default"] ?? throw new InvalidOperationException("Can't found [Secret Key] in appsettings.json !"))
     });
+
+// API: Add Jwt, Gooogle Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(jwtBearerOptions =>
+{
+    jwtBearerOptions.RequireHttpsMetadata = false;
+    jwtBearerOptions.SaveToken = true;
+    jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+            builder.Configuration["JWT:Secret"] ?? throw new InvalidOperationException("Missing JWT:Secret"))
+        ),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        ValidAudience = builder.Configuration["JWT:ValidAudience"]
+    };
+});
 
 // API: Add SwaggerGen (dotnet add package Swashbuckle.AspNetCore)
 builder.Services.AddSwaggerGen(
@@ -63,7 +91,15 @@ builder.Services.AddSwaggerGen(
     }
 );
 
-// API: Register Server Services
+builder.Services.AddAuthorization(); //ASP.NET Core server – Web API, MVC controller : [Authorize]
+builder.Services.AddAuthorizationCore(); // Blazor (client-side or server-side UI): [Authorize], [AuthorizeView].
+builder.Services.AddScoped<AuthenService>();
+builder.Services.AddScoped<IAuthenService, AuthenService>();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthenService>();
+
+
+// API: Register Server
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBankService, BankService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderByHistoryService, OrderByHistoryService>();

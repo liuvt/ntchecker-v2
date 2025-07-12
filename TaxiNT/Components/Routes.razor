@@ -1,6 +1,42 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
-    </Found>
-</Router>
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <RedirectToLogin />
+                </NotAuthorized>
+                <Authorizing>
+                    <progress>Đang xác thực...</progress>
+                </Authorizing>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Không tìm thấy trang.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+    </CascadingAuthenticationState>
+
+@inject IAuthenService authenService
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // ✅ GỌI TỪ ĐÂY mới được phép sử dụng JSInterop
+                await authenService.GetAuthenticationStateAsync();
+
+                Console.WriteLine("✅ JSInterop Authen Init called successfully.");
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error during JSInterop Authen Init: {ex.Message}");
+            }
+        }
+    }
+}

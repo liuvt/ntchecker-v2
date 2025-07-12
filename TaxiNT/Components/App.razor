@@ -6,18 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <link href="css/tailwindcss.css" rel="stylesheet" />
-
+    <script src="js/detectdrive.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Trirong:300,400,500,700&display=swap" rel="stylesheet" />
 
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="InteractiveServer"/>
 </head>
 
 <body>
     <Routes />
-    <script src="_framework/blazor.web.js"></script>
     <script src="js/mystyle.js"></script>
+    <script src="_framework/blazor.web.js"></script>
 </body>
 
 </html>
